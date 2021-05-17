@@ -1,84 +1,81 @@
-import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { Input, Button } from "react-native-elements";
-import { auth } from "../firebase";
+import React, { useState } from 'react'
+import { View, StyleSheet } from 'react-native'
+import { Input, Button } from 'react-native-elements';
+import { auth } from '../firebase';
 
-const RegisterScreen = (props) => {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+const RegisterScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
+    const [imageURL, setImageUrl] = useState('');
+    const register = () => {
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                // Signed in 
+                var user = userCredential.user;
+                user.updateProfile({
+                    displayName: name,
+                    photoURL: imageURL ? imageURL : "https://www.trackergps.com/canvas/images/icons/avatar.jpg"
+                }).then(function () {
+                    // Update successful.
+                }).catch(function (error) {
+                    // An error happened.
+                });
+                // ...
+                navigation.popToTop();
+            })
+            .catch((error) => {
 
-  const register = () => {
-    auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // sign in
-        var user = userCredential.user;
-        //....
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-      });
-  };
+                var errorMessage = error.message;
+                alert(errorMessage)
+            });
+    }
+    return (
+        <View style={styles.container}>
+            <Input
+                placeholder="Enter your name"
+                label="Name"
+                leftIcon={{ type: 'material', name: 'badge' }}
+                value={name}
+                onChangeText={text => setName(text)}
+            />
+            <Input
+                placeholder="Enter your email"
+                label="Email"
+                leftIcon={{ type: 'material', name: 'email' }}
+                value={email}
+                onChangeText={text => setEmail(text)}
+            />
+            <Input
+                placeholder="Enter your password"
+                label="Password"
+                leftIcon={{ type: 'material', name: 'lock' }}
+                value={password}
+                onChangeText={text => setPassword(text)}
+                secureTextEntry
+            />
+            <Input
+                placeholder="Enter your image Url"
+                label="Profile Picture"
+                leftIcon={{ type: 'material', name: 'face' }}
+                value={imageURL}
+                onChangeText={text => setImageUrl(text)}
+            />
+            <Button title="register" onPress={register} style={styles.button} />
 
-  return (
-    <View style={styles.container}>
-      <Input
-        placeholder="Enter your name"
-        label="Name"
-        leftIcon={{ type: "material", name: "badge" }}
-        value={name}
-        onChangeText={(text) => setName(text)}
-      />
-      <Input
-        placeholder="Enter your email"
-        label="Email"
-        leftIcon={{ type: "material", name: "email" }}
-        value={email}
-        onChangeText={(text) => setEmail(text)}
-      />
-      <Input
-        placeholder="Enter your imageUrl"
-        label="Profile Picture"
-        leftIcon={{ type: "material", name: "face" }}
-        value={imageUrl}
-        onChangeText={(text) => setImageUrl(text)}
-      />
-      <Input
-        placeholder="Enter your password"
-        label="Password"
-        leftIcon={{ type: "material", name: "lock" }}
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-        secureTextEntry
-      />
-      <View style={styles.btnContainer}>
-        <Button
-          color="red"
-          style={styles.btn}
-          title="Login"
-          onPress={() => props.navigation.navigate("Login")}
-        />
-      </View>
-      <View style={styles.btnContainer}>
-        <Button title="Register" style={styles.btn} />
-      </View>
-    </View>
-  );
-};
+        </View>
+    )
+}
 
-export default RegisterScreen;
-
+export default RegisterScreen
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    padding: 10,
-  },
-  btnContainer: {
-    width: 100,
-    margin: 10,
-  },
-});
+    button: {
+        width: 200,
+        marginTop: 10
+    },
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        padding: 10
+    }
+})
